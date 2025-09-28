@@ -12,6 +12,10 @@ module.exports = function (sequelize, DataTypes) {
       organizationId: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
+        references: {
+          model: "organization",
+          key: "id",
+        },
       },
 
       score: {

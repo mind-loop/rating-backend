@@ -12,7 +12,6 @@ exports.getOrganizations = asyncHandler(async (req, res, next) => {
 
   if (select) {
     select = select.split(" ");
-
     // ✅ Sensitive талбаруудаас цэвэрлэж байна
     select = select.filter(
       (field) =>
@@ -74,11 +73,12 @@ exports.getOrganization = asyncHandler(async (req, res, next) => {
   });
 });
 exports.signUp = asyncHandler(async (req, res, next) => {
-  const { type } = req;
+  const { type, userId } = req;
+
   if (type != "user") {
     throw new MyError("Та бүртгэх эрхгүй байна", 501)
   }
-  const user = await req.db.organization.create({ ...req.body });
+  const user = await req.db.organization.create({ ...req.body, userId });
   if (!user) {
     throw new MyError("Бүртгэж чадсангүй");
   }
@@ -142,14 +142,13 @@ exports.organizationInfo = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateOrganizationInfo = asyncHandler(async (req, res, next) => {
-  const { userId } = req;
-  if (req.body.password) {
-    delete req.body.password;
-  }
+  const { userId, type } = req;
+  const { id: paramsId } = req.params;
   await req.db.organization.update(
     req.body,
-    { where: { id: userId }, fields: { exclude: ['password'] } }
+    { where: { id: type == "user" ? paramsId : userId }, fields: { exclude: ['password'] } }
   );
+
   res.status(200).json({
     message: "User updated.",
     body: { success: true },

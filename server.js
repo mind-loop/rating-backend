@@ -17,8 +17,6 @@ const injectDb = require("./middleware/injectDb");
 const cors = require("cors");
 // Аппын тохиргоог process.env рүү ачаалах
 
-
-
 dotenv.config({ path: "./config/config.env" });
 
 const db = require("./config/db-mysql");
@@ -45,6 +43,11 @@ app.use("/api/v1/email", emailRoutes);
 app.use("/api/v1/rating", feedbackRoutes);
 app.use("/api/v1", successRoutes);
 app.use(errorHandler);
+
+// user to departments - one to many
+db.organization.hasMany(db.ratings, { foreignkey: "organizationId", as: "organization" });
+db.ratings.belongsTo(db.organization);
+// Sync models
 db.sequelize
   .sync()
   .then((result) => {

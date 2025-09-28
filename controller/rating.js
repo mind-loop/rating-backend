@@ -1,7 +1,41 @@
 const asyncHandler = require("../middleware/asyncHandle");
 const MyError = require("../utils/myError");
 const paginate = require("../utils/paginate-sequelize");
+exports.getOrganizationsRate = asyncHandler(async (req, res, next) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 1000;
+    const sort = req.query.sort;
+    let select = req.query.select;
 
+    ["select", "sort", "page", "limit"].forEach((el) => delete req.query[el]);
+    const pagination = await paginate(page, limit, req.db.ratings);
+    let query = { offset: pagination.start - 1, limit };
+    if (req.query) {
+        query.where = { ...req.query };
+        query.include = [{ model: req.db.organization, as: "organization" }];
+    }
+    if (select) {
+        query.attributes = select;
+    }
+    if (sort) {
+        query.order = sort
+            .split(" ")
+            .map((el) => [
+                el.charAt(0) === "-" ? el.substring(1) : el,
+                el.charAt(0) === "-" ? "DESC" : "ASC",
+            ]);
+    }
+    const ratings = await req.db.ratings.findAll({ ...query });
+    res.status(200).json({
+        message: "Success (:",
+        body: {
+            success: true,
+            items: ratings,
+            pagination,
+        },
+    });
+}
+);
 exports.getOrganizationRate = asyncHandler(async (req, res, next) => {
     const { type } = req;
     let organizationId = type == "organization" ? req.userId : req.params.id;
@@ -25,8 +59,8 @@ exports.getOrganizationRate = asyncHandler(async (req, res, next) => {
     let query = { offset: pagination.start - 1, limit };
 
     if (req.query) {
-        
-        query.where = { ...req.queryь, organizationId};
+
+        query.where = { ...req.queryь, organizationId };
     }
 
     if (select) {
@@ -44,12 +78,36 @@ exports.getOrganizationRate = asyncHandler(async (req, res, next) => {
 
     const ratings = await req.db.ratings.findAll(query);
     res.status(200).json({
-        success: true,
-        items: ratings,
-        pagination,
+        message: "Success (:",
+        body: {
+            success: true,
+            items: ratings,
+            pagination,
+        },
     });
 });
+exports.ratingRemove = asyncHandler(async (req, res, next) => {
+    const { type } = req;
+    if (!type == "admin") {
+        throw new MyError("Remove Filter not found", 501);
+    }
+    const { id } = req.params;
+    if (!id) {
+        throw new MyError("Filter not found", 501);
+    }
+    const rating = await req.db.ratings.findOne({ where: { id } });
+    if (!rating) {
+        throw new MyError("Rating not found", 404);
+    }
+    await rating.destroy();
 
+    res.status(200).json({
+        message: "Success (:",
+        body: {
+            success: true,
+        },
+    });
+});
 exports.createRatings = asyncHandler(async (req, res, next) => {
     const { organizationId } = req.body;
     if (!organizationId) {

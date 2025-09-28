@@ -18,10 +18,10 @@ router.route("/").get(getOrganizations);
 router.route("/signup").post(protect, signUp);
 router.route("/signin").post(signIn);
 router.route("/update").put(protect, updateOrganizationInfo);
+router.route("/update/:id").put(protect, updateOrganizationInfo);
 router.route("/info")
   .get(protect, organizationInfo);
-router.route("/:id").get(getOrganization
-);
+router.route("/:id").get(getOrganization);
 
 router
   .route("/forgot-password")
