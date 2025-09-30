@@ -15,7 +15,7 @@ const sendEmail = async (options) => {
     },
   });
   var mailOptions = {
-    from: options.from ? `${options.from} <${process.env.smtp_username}>` : `Цахим меню систем <${process.env.SPONSOR_EMAIL}>`,
+    from: options.from ? `${options.from} <${process.env.smtp_username}>` : `Санал хүсэлтийн нэгдсэн систем <${process.env.SPONSOR_EMAIL}>`,
     to: options.email,
     subject: options.subject,
     ...(isHtml

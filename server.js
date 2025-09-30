@@ -23,12 +23,6 @@ const db = require("./config/db-mysql");
 
 const app = express();
 
-// create a write stream (in append mode)
-var accessLogStream = rfs.createStream("access.log", {
-  interval: "1d", // rotate daily
-  path: path.join(__dirname, "log"),
-});
-
 // Body parser
 app.use(express.json());
 app.use(fileUpload());
@@ -36,7 +30,6 @@ app.use(cors());
 app.use(logger);
 app.use(injectDb(db));
 app.use(express.static("public"));
-app.use(morgan("combined", { stream: accessLogStream }));
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/organization", organizationRoutes);
 app.use("/api/v1/email", emailRoutes);

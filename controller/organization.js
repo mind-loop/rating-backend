@@ -87,6 +87,7 @@ exports.signUp = asyncHandler(async (req, res, next) => {
       is_active: true
     }
   })
+
   await sendEmail({
     subject: "Шинэ бүртгэл үүслээ",
     email: req.body.email,
@@ -149,6 +150,26 @@ exports.updateOrganizationInfo = asyncHandler(async (req, res, next) => {
     { where: { id: type == "user" ? paramsId : userId }, fields: { exclude: ['password'] } }
   );
 
+  const org = await req.db.organization.findByPk(paramsId || userId);
+
+  const smtp = await req.db.email.findOne({
+    where: {
+      is_active: true
+    }
+  })
+
+  await sendEmail({
+    subject: "Таны мэдээлэл шинэчлэгдлээ",
+    email: org.email,
+    message: emailTemplate({
+      title: "Амжилттай шинэчиллээ", label: `<p>Хэрэв та өөрчлөлт оруулаагүй бол доорх холбоосоор нэвтэрч нууц үгээ сольж болно.</p>`
+    }),
+
+    isHtml: true,
+    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
+    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
+
+  });
   res.status(200).json({
     message: "User updated.",
     body: { success: true },

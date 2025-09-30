@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const rateLimit = require ('express-rate-limit')
+const rateLimit = require('express-rate-limit')
 
 const { emailHTMLsent, emailTXTsent, getEmails, createEmail, activeEmail, changeActiveEmail, getEmail, deleteEmail, updateEmail } = require("../controller/email");
 const sendLimit = rateLimit({
@@ -19,14 +19,14 @@ const updateLimit = rateLimit({
   ipv6Subnet: 56,
   message: "Too many requests from this IP, please try again after an hour",
 });
-router.route("/html").post(sendLimit, emailHTMLsent);
-router.route("/txt").post(sendLimit, emailTXTsent)
-router.route("/account").get(updateLimit, getEmails).post(updateLimit, createEmail);
-router.route("/active").get(updateLimit, activeEmail);
-router.route("/active/:id").post(updateLimit, changeActiveEmail);
+router.route("/html").post(emailHTMLsent);
+router.route("/txt").post(emailTXTsent)
+router.route("/account").get(getEmails).post(createEmail);
+router.route("/active").get(activeEmail);
+router.route("/active/:id").post(changeActiveEmail);
 router.route("/:id")
-  .get(updateLimit, getEmail)
+  .get(getEmail)
   .delete(deleteEmail)
-  .put(updateLimit, updateEmail);
+  .put(updateEmail);
 
 module.exports = router;
