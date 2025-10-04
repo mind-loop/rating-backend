@@ -27,8 +27,7 @@ const sequelize = new Sequelize(
 const models = [
   require("../models/users"),
   require("../models/organization"),
-  require("../models/rating"),
-  require("../models/email")
+  require("../models/rating")
 ];
 
 models.forEach((model) => {

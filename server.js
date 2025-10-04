@@ -8,7 +8,6 @@ const errorHandler = require("./middleware/error");
 var morgan = require("morgan");
 const logger = require("./middleware/logger");
 // Router оруулж ирэх
-const emailRoutes = require("./routes/email");
 const organizationRoutes = require("./routes/organization")
 const successRoutes = require("./routes/success");
 const userRoutes = require("./routes/users")
@@ -16,7 +15,6 @@ const feedbackRoutes = require("./routes/rating")
 const injectDb = require("./middleware/injectDb");
 const cors = require("cors");
 // Аппын тохиргоог process.env рүү ачаалах
-
 dotenv.config({ path: "./config/config.env" });
 
 const db = require("./config/db-mysql");
@@ -32,7 +30,6 @@ app.use(injectDb(db));
 app.use(express.static("public"));
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/organization", organizationRoutes);
-app.use("/api/v1/email", emailRoutes);
 app.use("/api/v1/rating", feedbackRoutes);
 app.use("/api/v1", successRoutes);
 app.use(errorHandler);

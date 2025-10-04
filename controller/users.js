@@ -2,8 +2,8 @@ const asyncHandler = require("express-async-handler");
 const paginate = require("../utils/paginate-sequelize");
 const MyError = require("../utils/myError");
 const bcrypt = require("bcrypt");
-const sendEmail = require("../utils/email");
 const { generateLengthPass, emailTemplate } = require("../utils/common");
+const { sendHtmlEmail } = require("../middleware/email");
 exports.getUsers = asyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 1000;
@@ -55,15 +55,17 @@ exports.signUp = asyncHandler(async (req, res, next) => {
       is_active: true
     }
   })
-  await sendEmail({
-    subject: "Шинэ бүртгэл үүслээ",
-    email: req.body.email,
-    message: emailTemplate({ title: "амжилттай бүртгүүллээ. 🎉" }),
-    isHtml: true,
-    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
-    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
 
-  });
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: `Шинэ бүртгэл үүслээ`,
+    email: req.body.email,
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих 2025.10.04",
+    buttonUrl: "https://example.com/dashboard",
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
   res.status(200).json({
     message: "",
     body: { token: user.getJsonWebToken(), user: user },
@@ -153,23 +155,17 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   }
   const salt = await bcrypt.genSalt(10);
   const new_password = await bcrypt.hash(password, salt);
-
-  const smtp = await req.db.email.findOne({
-    where: {
-      is_active: true
-    }
-  })
-  await sendEmail({
-    subject: "Нууц үг солигдлоо үүслээ",
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: `Нууц үг солигдлоо. Нууц үг:${password}`,
     email: req.body.email,
-    message: emailTemplate({
-      title: "Таны нууц үгээ сэргээлээ. 🎉", label: ` <p><strong>Нууц үг:</strong> ${password}</p>
-              <p>Өдрийг сайхан өнгөрүүлээрэй! ☀️</p>`}),
-    isHtml: true,
-    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
-    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих 2025.10.04",
+    buttonUrl: "https://example.com/dashboard",
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
 
-  });
   await req.db.users.update(
     { password: new_password },
     {
@@ -200,24 +196,16 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
       },
     }
   );
-
-  const smtp = await req.db.email.findOne({
-    where: {
-      is_active: true
-    }
-  })
-
-  await sendEmail({
-    subject: "Таны нууц үг амжилттай шинэчлэгдлээ",
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: `Таны нууц үг амжилттай шинэчлэгдлээ`,
     email: req.email,
-    message: emailTemplate({
-      title: "Таны нууц үгээ шинэчлэгдлээ. 🎉"
-    }),
-    isHtml: true,
-    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
-    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
-
-  });
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих 2025.10.04",
+    buttonUrl: "https://example.com/dashboard",
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
   res.status(200).json({
     message: "Таны нууц үг амжилттай шинэчлэгдлээ",
     body: { success: true },

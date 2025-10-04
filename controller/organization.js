@@ -2,8 +2,8 @@ const asyncHandler = require("express-async-handler");
 const paginate = require("../utils/paginate-sequelize");
 const MyError = require("../utils/myError");
 const bcrypt = require("bcrypt");
-const sendEmail = require("../utils/email");
 const { generateLengthPass, emailTemplate } = require("../utils/common");
+const { sendHtmlEmail } = require("../middleware/email");
 exports.getOrganizations = asyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 1000;
@@ -82,21 +82,16 @@ exports.signUp = asyncHandler(async (req, res, next) => {
   if (!user) {
     throw new MyError("Бүртгэж чадсангүй");
   }
-  const smtp = await req.db.email.findOne({
-    where: {
-      is_active: true
-    }
-  })
-
-  await sendEmail({
-    subject: "Шинэ бүртгэл үүслээ",
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: `Шинэ бүртгэл үүслээ`,
     email: req.body.email,
-    message: emailTemplate({ title: "амжилттай бүртгүүллээ. 🎉" }),
-    isHtml: true,
-    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
-    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
-
-  });
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих 2025.10.04",
+    buttonUrl: "https://example.com/dashboard",
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
   res.status(200).json({
     message: "",
     body: { token: user.getJsonWebToken(), user: user },
@@ -151,25 +146,18 @@ exports.updateOrganizationInfo = asyncHandler(async (req, res, next) => {
   );
 
   const org = await req.db.organization.findByPk(paramsId || userId);
-
-  const smtp = await req.db.email.findOne({
-    where: {
-      is_active: true
-    }
-  })
-
-  await sendEmail({
-    subject: "Таны мэдээлэл шинэчлэгдлээ",
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: "Та системд шинэ санал илгээсэн байна.",
     email: org.email,
-    message: emailTemplate({
-      title: "Амжилттай шинэчиллээ", label: `<p>Хэрэв та өөрчлөлт оруулаагүй бол доорх холбоосоор нэвтэрч нууц үгээ сольж болно.</p>`
-    }),
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих 2025.10.04",
+    buttonUrl: "https://example.com/dashboard",
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
+  // Таны мэдээлэл шинэчилэгдлээ гэсэн имейл шидэх
 
-    isHtml: true,
-    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
-    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
-
-  });
   res.status(200).json({
     message: "User updated.",
     body: { success: true },
@@ -216,17 +204,16 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
       is_active: true
     }
   })
-  await sendEmail({
-    subject: "Нууц үг солигдлоо үүслээ",
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: `Нууц үг солигдлоо. Нууц үг:${password}`,
     email: req.body.email,
-    message: emailTemplate({
-      title: "Таны нууц үгээ сэргээлээ. 🎉", label: ` <p><strong>Нууц үг:</strong> ${password}</p>
-              <p>Өдрийг сайхан өнгөрүүлээрэй! ☀️</p>`}),
-    isHtml: true,
-    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
-    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
-
-  });
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих 2025.10.04",
+    buttonUrl: "https://example.com/dashboard",
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
   await req.db.organization.update(
     { password: new_password },
     {
@@ -257,24 +244,16 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
       },
     }
   );
-
-  const smtp = await req.db.email.findOne({
-    where: {
-      is_active: true
-    }
-  })
-
-  await sendEmail({
-    subject: "Таны нууц үг амжилттай шинэчлэгдлээ",
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: `Таны нууц үг амжилттай шинэчлэгдлээ`,
     email: req.email,
-    message: emailTemplate({
-      title: "Таны нууц үгээ шинэчлэгдлээ. 🎉"
-    }),
-    isHtml: true,
-    smtp_username: smtp ? smtp.username : process.env.SMTP_USERNAME,
-    smtp_password: smtp ? smtp.password : process.env.SMTP_PASSWORD,
-
-  });
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих 2025.10.04",
+    buttonUrl: "https://example.com/dashboard",
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
   res.status(200).json({
     message: "Таны нууц үг амжилттай шинэчлэгдлээ",
     body: { success: true },
