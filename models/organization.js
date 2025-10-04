@@ -116,6 +116,7 @@ module.exports = function (sequelize, DataTypes) {
         }
     });
 
+
     // JWT үүсгэх
     Organization.prototype.getJsonWebToken = function () {
         const token = jwt.sign(

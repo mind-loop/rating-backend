@@ -55,8 +55,8 @@ exports.signUp = asyncHandler(async (req, res, next) => {
     label: `Шинэ бүртгэл үүслээ`,
     email: req.body.email,
     from: "Системийн Админ",
-    buttonText: "Систем рүү очих 2025.10.04",
-    buttonUrl: "https://example.com/dashboard",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
     greeting: "Сайн байна уу?"
   };
   await sendHtmlEmail({ ...emailBody })
@@ -109,10 +109,23 @@ exports.updateUserInfo = asyncHandler(async (req, res, next) => {
   if (req.body.password) {
     delete req.body.password;
   }
+  const user = await req.db.users.findByPk(userId)
   await req.db.users.update(
     req.body,
     { where: { id: userId }, fields: { exclude: ['password'] } }
   );
+
+  const emailBody = {
+    title: "Санал хүсэлтийн мэдэгдэл",
+    label: `Таны мэдээлэл шинэчлэгдлээ`,
+    email: user.email,
+    from: "Системийн Админ",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
+    greeting: "Сайн байна уу?"
+  };
+  await sendHtmlEmail({ ...emailBody })
+
   res.status(200).json({
     message: "User updated.",
     body: { success: true },
@@ -154,8 +167,8 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     label: `Нууц үг солигдлоо. Нууц үг:${password}`,
     email: req.body.email,
     from: "Системийн Админ",
-    buttonText: "Систем рүү очих 2025.10.04",
-    buttonUrl: "https://example.com/dashboard",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
     greeting: "Сайн байна уу?"
   };
   await sendHtmlEmail({ ...emailBody })
@@ -195,8 +208,8 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
     label: `Таны нууц үг амжилттай шинэчлэгдлээ`,
     email: req.email,
     from: "Системийн Админ",
-    buttonText: "Систем рүү очих 2025.10.04",
-    buttonUrl: "https://example.com/dashboard",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
     greeting: "Сайн байна уу?"
   };
   await sendHtmlEmail({ ...emailBody })

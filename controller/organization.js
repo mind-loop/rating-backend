@@ -87,8 +87,8 @@ exports.signUp = asyncHandler(async (req, res, next) => {
     label: `Шинэ бүртгэл үүслээ`,
     email: req.body.email,
     from: "Системийн Админ",
-    buttonText: "Систем рүү очих 2025.10.04",
-    buttonUrl: "https://example.com/dashboard",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
     greeting: "Сайн байна уу?"
   };
   await sendHtmlEmail({ ...emailBody })
@@ -151,8 +151,8 @@ exports.updateOrganizationInfo = asyncHandler(async (req, res, next) => {
     label: "Та системд шинэ санал илгээсэн байна.",
     email: org.email,
     from: "Системийн Админ",
-    buttonText: "Систем рүү очих 2025.10.04",
-    buttonUrl: "https://example.com/dashboard",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
     greeting: "Сайн байна уу?"
   };
   await sendHtmlEmail({ ...emailBody })
@@ -193,6 +193,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
       email,
     },
   });
+
   if (!users) {
     throw new MyError(`${email} байгууллага олдсонгүй!`, 400);
   }
@@ -203,8 +204,8 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     label: `Нууц үг солигдлоо. Нууц үг:${password}`,
     email: req.body.email,
     from: "Системийн Админ",
-    buttonText: "Систем рүү очих 2025.10.04",
-    buttonUrl: "https://example.com/dashboard",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
     greeting: "Сайн байна уу?"
   };
   await sendHtmlEmail({ ...emailBody })
@@ -243,8 +244,8 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
     label: `Таны нууц үг амжилттай шинэчлэгдлээ`,
     email: req.email,
     from: "Системийн Админ",
-    buttonText: "Систем рүү очих 2025.10.04",
-    buttonUrl: "https://example.com/dashboard",
+    buttonText: "Систем рүү очих",
+    buttonUrl: process.env.WEBSITE_URL,
     greeting: "Сайн байна уу?"
   };
   await sendHtmlEmail({ ...emailBody })
