@@ -26,7 +26,11 @@ module.exports = function (sequelize, DataTypes) {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,
             },
-
+            organization_register: {
+                type: DataTypes.INTEGER.UNSIGNED,
+                allowNull: false,
+                unique: true,
+            },
             // Байгууллагын мэдээлэл
             business_name: {
                 type: DataTypes.STRING,
