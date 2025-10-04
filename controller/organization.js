@@ -198,12 +198,6 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   }
   const salt = await bcrypt.genSalt(10);
   const new_password = await bcrypt.hash(password, salt);
-
-  const smtp = await req.db.email.findOne({
-    where: {
-      is_active: true
-    }
-  })
   const emailBody = {
     title: "Санал хүсэлтийн мэдэгдэл",
     label: `Нууц үг солигдлоо. Нууц үг:${password}`,

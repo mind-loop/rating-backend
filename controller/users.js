@@ -50,12 +50,6 @@ exports.signUp = asyncHandler(async (req, res, next) => {
   if (!user) {
     throw new MyError("Бүртгэж чадсангүй");
   }
-  const smtp = await req.db.email.findOne({
-    where: {
-      is_active: true
-    }
-  })
-
   const emailBody = {
     title: "Санал хүсэлтийн мэдэгдэл",
     label: `Шинэ бүртгэл үүслээ`,
